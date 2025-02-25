@@ -21,7 +21,7 @@ local function boxedSlotToPos(slot, xLength, zeroPos)
     local x
     local y
 
-    if row % 2 == 0 then
+    if row % 2 == 1 then
         x = xLength - 1 - col + zeroPos[1]
     else
         x = col + zeroPos[1]

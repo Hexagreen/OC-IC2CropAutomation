@@ -1,5 +1,7 @@
 # Introduction
 
+This repository was forked for use in the owner's private project, an OpenComputers add-on mod for IC2 crops.
+
 These Open Computers (OC) scripts automatically tier-up, stat-up, and spread (duplicate) IC2 crops for you. OC is a very powerful yet complicated mod using custom scripts, but fear not. This guide walks through every step of the process, from building the crop bot to debugging and troubleshooting. No prior knowledege of OC is necessary.
 
 The general idea is that the crop bot runs one of three executable programs while regularly checking and maintaining a **working farm** of crops (placing crop sticks, removing weeds, etc.). When necessary, it moves crops around entirely on its own through the use of a Transvector Dislocator. The ultimate goal of the crop bot is to populate a **storage farm** full of high-stat crops to be used elsewhere for harvesting. There is no player intervention beyond supplying the crop bot with crop sticks, activating the crop bot, and collecting the final products.

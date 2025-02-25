@@ -8,24 +8,25 @@ local function scan()
     local rawResult = geolyzer.analyze(sides.down)
 
     -- AIR
-    if rawResult.name == 'minecraft:air' or rawResult.name == 'GalacticraftCore:tile.brightAir' then
+    if rawResult.name == 'minecraft:air' then
         return {isCrop=true, name='air'}
 
     elseif rawResult.name == 'IC2:blockCrop' then
 
         -- EMPTY CROP STICK
-        if rawResult['crop:name'] == nil then
+        if rawResult['CropName'] == nil then
             return {isCrop=true, name='emptyCrop'}
 
         -- FILLED CROP STICK
         else
             return {
                 isCrop=true,
-                name = rawResult['crop:name'],
-                gr = rawResult['crop:growth'],
-                ga = rawResult['crop:gain'],
-                re = rawResult['crop:resistance'],
-                tier = rawResult['crop:tier']
+                name = rawResult['CropName'],
+                gr = rawResult['CropGrowth'],
+                ga = rawResult['CropGain'],
+                re = rawResult['CropResistance'],
+                tier = rawResult['CropTier'],
+                size = rawResult['CropSize']
             }
         end
 
@@ -54,7 +55,15 @@ local function isWeed(crop, farm)
 end
 
 
+local function canDropSeed(crop)
+    if crop.isCrop and crop.name ~= 'emptyCrop' then
+        return crop.size >= 2
+    end
+end
+
+
 return {
     scan = scan,
-    isWeed = isWeed
+    isWeed = isWeed,
+    canDropSeed = canDropSeed
 }

@@ -4,55 +4,41 @@ local nowFacing = 1
 local nowPos = {0, 0}
 local savedPos = {}
 
--- ======================== WORKING FARM ========================
---  _________________
--- |31 30 19 18 07 06|  6x6 Slot Map
--- |32 29 20 17 08 05|
--- |33 28 21 16 09 04|  One down from 01 is (0,0)
--- |34 27 22 15 10 03|
--- |35 26 23 14 11 02|
--- |36 25 24 13 12 01|
---  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-
-local function workingSlotToPos(slot)
-    local x = (slot - 1) // config.workingFarmSize
-    local row = (slot - 1) % config.workingFarmSize
+-- ======= BOXED SLOT ========
+--  _________________________
+-- | 63 62 61 60 59 58 57 56 |
+-- | 48 49 50 51 52 53 54 55 |
+-- | 47 46 45 44 43 42 41 40 |
+-- | 32 33 34 35 36 37 38 39 |
+-- | 31 30 29 28 27 26 25 24 |
+-- | 16 17 18 19 20 21 22 23 |
+-- | 15 14 13 12 11 10 09 08 |
+-- | 00 01 02 03 04 05 06 07 |
+--  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+local function boxedSlotToPos(slot, xLength, zeroPos)
+    local col = slot % xLength
+    local row = slot // xLength
+    local x
     local y
 
-    if x % 2 == 0 then
-        y = row + 1
+    if row % 2 == 0 then
+        x = xLength - 1 - col + zeroPos[1]
     else
-        y = -row + config.workingFarmSize
+        x = col + zeroPos[1]
     end
-
-    return {-x, y}
-end
-
--- ======================== STORAGE FARM ========================
---  __________________________
--- |09 10 27 28 45 46 63 64 81|  9x9 Slot Map
--- |08 11 26 29 44 47 62 65 80|
--- |07 12 25 30 43 48 61 66 79|  Two left from 03 is (0,0)
--- |06 13 24 31 42 49 60 67 78|
--- |05 14 23 32 41 50 59 68 77|
--- |04 15 22 33 40 51 58 69 76|
--- |03 16 21 34 39 52 57 70 75|
--- |02 17 20 35 38 53 56 71 74|
--- |01 18 19 36 37 54 55 72 73|
---  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-
-local function storageSlotToPos(slot)
-    local x = (slot - 1) // config.storageFarmSize + 2
-    local row = (slot - 1) % config.storageFarmSize
-    local y
-
-    if x % 2 == 0 then
-        y = row - config.storageFarmSize + config.workingFarmSize + 1
-    else
-        y = -row + config.workingFarmSize
-    end
+    y = row + zeroPos[2]
 
     return {x, y}
+end
+
+
+local function workingSlotToPos(slot)
+    return boxedSlotToPos(slot - 1, config.workingFarmSizeX, config.workingFarmPos)
+end
+
+
+local function storageSlotToPos(slot)
+    return boxedSlotToPos(slot - 1, config.storageFarmSizeX, config.storageFarmPos)
 end
 
 
@@ -171,6 +157,7 @@ end
 
 
 return {
+    boxedSlotToPos = boxedSlotToPos,
     workingSlotToPos = workingSlotToPos,
     storageSlotToPos = storageSlotToPos,
     getFacing = getFacing,

@@ -52,7 +52,7 @@ local function checkChild(slot, crop, firstRun)
 
         elseif scanner.isWeed(crop, 'working') then
             action.deweed()
-            action.placeCropStick()
+            action.placeCropStick(2)
 
         elseif firstRun then
             return
@@ -61,6 +61,9 @@ local function checkChild(slot, crop, firstRun)
             local stat = crop.gr + crop.ga - crop.re
 
             if stat > lowestStat then
+                if not scanner.canDropSeed(crop) then
+                    return
+                end
                 action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(lowestStatSlot))
                 action.placeCropStick(2)
                 database.updateFarm(lowestStatSlot, crop)
@@ -68,17 +71,20 @@ local function checkChild(slot, crop, firstRun)
 
             else
                 action.deweed()
-                action.placeCropStick()
+                action.placeCropStick(2)
             end
 
         elseif config.keepMutations and (not database.existInStorage(crop)) then
+            if not scanner.canDropSeed(crop) then
+                return
+            end
             action.transplant(gps.workingSlotToPos(slot), gps.storageSlotToPos(database.nextStorageSlot()))
             action.placeCropStick(2)
             database.addToStorage(crop)
 
         else
             action.deweed()
-            action.placeCropStick()
+            action.placeCropStick(2)
         end
     end
 end
@@ -88,6 +94,7 @@ local function checkParent(slot, crop, firstRun)
     if crop.isCrop and crop.name ~= 'air' and crop.name ~= 'emptyCrop' then
         if scanner.isWeed(crop, 'working') then
             action.deweed()
+            action.placeCropStick()
             database.updateFarm(slot, {isCrop=true, name='emptyCrop'})
             if not firstRun then
                 updateLowest()

@@ -68,7 +68,7 @@ local function checkChild(slot, crop, firstRun)
 
         elseif scanner.isWeed(crop, 'working') then
             action.deweed()
-            action.placeCropStick()
+            action.placeCropStick(2)
 
         elseif firstRun then
             return
@@ -78,6 +78,9 @@ local function checkChild(slot, crop, firstRun)
             local stat = crop.gr + crop.ga - crop.re
 
             if crop.tier > lowestTier then
+                if not scanner.canDropSeed(crop) then
+                    return
+                end
                 action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(lowestTierSlot))
                 action.placeCropStick(2)
                 database.updateFarm(lowestTierSlot, crop)
@@ -85,6 +88,9 @@ local function checkChild(slot, crop, firstRun)
 
             -- Not higher tier, stat up working farm
             elseif (config.statWhileTiering and crop.tier == lowestTier and stat > lowestStat) then
+                if not scanner.canDropSeed(crop) then
+                    return
+                end
                 action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(lowestStatSlot))
                 action.placeCropStick(2)
                 database.updateFarm(lowestStatSlot, crop)
@@ -92,11 +98,14 @@ local function checkChild(slot, crop, firstRun)
 
             else
                 action.deweed()
-                action.placeCropStick()
+                action.placeCropStick(2)
             end
 
         -- Not seen before, move to storage
         else
+            if not scanner.canDropSeed(crop) then
+                return
+            end
             action.transplant(gps.workingSlotToPos(slot), gps.storageSlotToPos(database.nextStorageSlot()))
             action.placeCropStick(2)
             database.addToStorage(crop)
@@ -109,6 +118,7 @@ local function checkParent(slot, crop, firstRun)
     if crop.isCrop and crop.name ~= 'air' and crop.name ~= 'emptyCrop' then
         if scanner.isWeed(crop, 'working') then
             action.deweed()
+            action.placeCropStick()
             database.updateFarm(slot, {isCrop=true, name='emptyCrop'})
             if not firstRun then
                 updateLowest()

@@ -33,6 +33,11 @@ local function fullInventory()
 end
 
 
+local function suckDown()
+    while robot.suckDown() do end
+end
+
+
 local function restockStick()
     local selectedSlot = robot.select()
     gps.go(config.stickContainerPos)
@@ -99,7 +104,7 @@ end
 local function deweed()
     local selectedSlot = robot.select()
 
-    if config.keepDrops and fullInventory() then
+    if config.pickUpDrops and fullInventory() then
         gps.save()
         dumpInventory()
         gps.resume()
@@ -108,13 +113,25 @@ local function deweed()
     robot.select(robot.inventorySize() + config.spadeSlot)
     inventory_controller.equip()
     robot.useDown()
+    robot.swingDown()
 
-    if config.keepDrops then
-        robot.suckDown()
+    if config.pickUpDrops then
+        suckDown()
     end
 
     inventory_controller.equip()
     robot.select(selectedSlot)
+end
+
+
+local function findSeedSlot()
+    for i=1, (robot.inventorySize() + config.storageStopSlot) do
+        local stack = inventory_controller.getStackInInternalSlot(i)
+        if stack ~= nil and stack.name == "IC2:itemCropSeed" then
+            return i
+        end
+    end
+    return nil
 end
 
 
@@ -127,18 +144,29 @@ end
 
 local function transplant(src, dest)
     local selectedSlot = robot.select()
+
+    -- Empty inventory for specifies new seed
     gps.save()
-    robot.select(robot.inventorySize() + config.binderSlot)
-    inventory_controller.equip()
+    dumpInventory()
+    gps.resume()
 
-    -- Transfer to relay location
+    gps.save()
+
+    -- Pick plant and suck seed
     gps.go(src)
-    robot.useDown(sides.down, true)
-    gps.go(config.dislocatorPos)
-    pulseDown()
+    robot.swingDown()
+    suckDown()
 
-    -- Transfer crop to destination
-    robot.useDown(sides.down, true)
+    -- Find seed and select, if not found, terminate
+    local seedSlot = findSeedSlot()
+    if seedSlot == nil then
+        gps.resume()
+        robot.select(selectedSlot)
+        return
+    end
+    robot.select(seedSlot)
+
+    -- Move to destination and set cropstick
     gps.go(dest)
 
     local crop = scanner.scan()
@@ -151,20 +179,11 @@ local function transplant(src, dest)
         placeCropStick()
     end
 
-    robot.useDown(sides.down, true)
-    gps.go(config.dislocatorPos)
-    pulseDown()
-
-    -- Reprime binder
-    robot.useDown(sides.down, true)
-
-    -- Destroy original crop
-    inventory_controller.equip()
-    gps.go(config.relayFarmlandPos)
     robot.swingDown()
-    if config.KeepDrops then
-        robot.suckDown()
-    end
+    suckDown()
+
+    inventory_controller.equip()
+    robot.useDown(sides.down)
 
     gps.resume()
     robot.select(selectedSlot)
@@ -189,28 +208,12 @@ function cleanUp()
         end
 
         -- Pickup
-        if config.KeepDrops then
-            robot.suckDown()
+        if config.pickUpDrops then
+            suckDown()
         end
     end
     events.setNeedCleanup(false)
     restockAll()
-end
-
-
-local function primeBinder()
-    local selectedSlot = robot.select()
-    robot.select(robot.inventorySize() + config.binderSlot)
-    inventory_controller.equip()
-
-    -- Use binder at start to reset it, if already primed
-    robot.useDown(sides.down, true)
-
-    gps.go(config.dislocatorPos)
-    robot.useDown(sides.down)
-
-    inventory_controller.equip()
-    robot.select(selectedSlot)
 end
 
 
@@ -242,7 +245,6 @@ local function initWork()
     events.hookEvents()
     charge()
     database.resetStorage()
-    primeBinder()
     restockAll()
 end
 
@@ -258,5 +260,6 @@ return {
     pulseDown = pulseDown,
     transplant = transplant,
     cleanUp = cleanUp,
-    initWork = initWork
+    initWork = initWork,
+    suckDown = suckDown
 }

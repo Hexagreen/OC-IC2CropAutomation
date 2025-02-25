@@ -31,19 +31,25 @@ local function checkChild(slot, crop)
 
         elseif scanner.isWeed(crop, 'storage') then
             action.deweed()
-            action.placeCropStick()
+            action.placeCropStick(2)
 
         elseif crop.name == targetCrop then
             local stat = crop.gr + crop.ga - crop.re
 
             -- Make sure no parent on the working farm is empty
             if stat >= config.autoStatThreshold and findEmpty() and crop.gr <= config.workingMaxGrowth and crop.re <= config.workingMaxResistance then
+                if not scanner.canDropSeed(crop) then
+                    return
+                end
                 action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(emptySlot))
                 action.placeCropStick(2)
                 database.updateFarm(emptySlot, crop)
 
             -- No parent is empty, put in storage
             elseif stat >= config.autoSpreadThreshold then
+                if not scanner.canDropSeed(crop) then
+                    return
+                end
                 action.transplant(gps.workingSlotToPos(slot), gps.storageSlotToPos(database.nextStorageSlot()))
                 database.addToStorage(crop)
                 action.placeCropStick(2)
@@ -51,17 +57,20 @@ local function checkChild(slot, crop)
             -- Stats are not high enough
             else
                 action.deweed()
-                action.placeCropStick()
+                action.placeCropStick(2)
             end
 
         elseif config.keepMutations and (not database.existInStorage(crop)) then
+            if not scanner.canDropSeed(crop) then
+                return
+            end
             action.transplant(gps.workingSlotToPos(slot), gps.storageSlotToPos(database.nextStorageSlot()))
             action.placeCropStick(2)
             database.addToStorage(crop)
 
         else
             action.deweed()
-            action.placeCropStick()
+            action.placeCropStick(2)
         end
     end
 end
@@ -71,6 +80,7 @@ local function checkParent(slot, crop)
     if crop.isCrop and crop.name ~= 'air' and crop.name ~= 'emptyCrop' then
         if scanner.isWeed(crop, 'working') then
             action.deweed()
+            action.placeCropStick()
             database.updateFarm(slot, {isCrop=true, name='emptyCrop'})
         end
     end

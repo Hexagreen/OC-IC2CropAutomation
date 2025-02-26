@@ -31,7 +31,7 @@ local function checkChild(slot, crop)
 
         elseif scanner.isWeed(crop, 'storage') then
             action.deweed()
-            action.placeCropStick(2)
+            action.placeCropStick()
 
         elseif crop.name == targetCrop then
             local stat = crop.gr + crop.ga - crop.re
@@ -50,9 +50,9 @@ local function checkChild(slot, crop)
                 if not scanner.canDropSeed(crop) then
                     return
                 end
-                action.transplant(gps.workingSlotToPos(slot), gps.storageSlotToPos(database.nextStorageSlot()))
-                database.addToStorage(crop)
+                local transSuccess = action.transplant(gps.workingSlotToPos(slot), gps.storageSlotToPos(database.nextStorageSlot()))
                 action.placeCropStick(2)
+                if transSuccess then database.addToStorage(crop) end
 
             -- Stats are not high enough
             else
@@ -64,13 +64,13 @@ local function checkChild(slot, crop)
             if not scanner.canDropSeed(crop) then
                 return
             end
-            action.transplant(gps.workingSlotToPos(slot), gps.storageSlotToPos(database.nextStorageSlot()))
+            local transSuccess = action.transplant(gps.workingSlotToPos(slot), gps.storageSlotToPos(database.nextStorageSlot()))
             action.placeCropStick(2)
-            database.addToStorage(crop)
+            if transSuccess then database.addToStorage(crop) end
 
         else
             action.deweed()
-            action.placeCropStick(2)
+            action.placeCropStick()
         end
     end
 end
@@ -80,7 +80,6 @@ local function checkParent(slot, crop)
     if crop.isCrop and crop.name ~= 'air' and crop.name ~= 'emptyCrop' then
         if scanner.isWeed(crop, 'working') then
             action.deweed()
-            action.placeCropStick()
             database.updateFarm(slot, {isCrop=true, name='emptyCrop'})
         end
     end

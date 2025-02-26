@@ -113,7 +113,6 @@ local function deweed()
     robot.select(robot.inventorySize() + config.spadeSlot)
     inventory_controller.equip()
     robot.useDown()
-    robot.swingDown()
 
     if config.pickUpDrops then
         suckDown()
@@ -154,17 +153,15 @@ local function transplant(src, dest)
 
     -- Pick plant and suck seed
     gps.go(src)
-    robot.swingDown()
-    suckDown()
+    deweed()
 
     -- Find seed and select, if not found, terminate
     local seedSlot = findSeedSlot()
     if seedSlot == nil then
         gps.resume()
         robot.select(selectedSlot)
-        return
+        return false
     end
-    robot.select(seedSlot)
 
     -- Move to destination and set cropstick
     gps.go(dest)
@@ -177,16 +174,18 @@ local function transplant(src, dest)
         database.addToStorage(crop)
         gps.go(gps.storageSlotToPos(database.nextStorageSlot()))
         placeCropStick()
+    elseif crop.name ~= 'emptyCrop' then
+        deweed()
     end
 
-    robot.swingDown()
-    suckDown()
-
+    robot.select(seedSlot)
     inventory_controller.equip()
     robot.useDown(sides.down)
+    inventory_controller.equip()
 
     gps.resume()
     robot.select(selectedSlot)
+    return true
 end
 
 

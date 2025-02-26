@@ -9,7 +9,7 @@ local function keyboardEvent(eventName, keyboardAddress, charNum, codeNum, playe
     -- Exit if 'q' was pressed
     if charNum == 113 then
         needExitFlag = true
-        print('===== !!! ===== !!! ===== !!! =====')
+        print('===== !!! ===TERMINATE=== !!! =====')
         self.beep(1000, 1)
         return false -- Unregister this event listener
 
@@ -17,7 +17,7 @@ local function keyboardEvent(eventName, keyboardAddress, charNum, codeNum, playe
     elseif charNum == 99 then
         needExitFlag = true
         needCleanupFlag = true
-        print('===== !!! ===== !!! ===== !!! =====')
+        print('===== !!! ====CLEANUP==== !!! =====')
         self.beep(1000, 1)
         return false -- Unregister this event listener
     end

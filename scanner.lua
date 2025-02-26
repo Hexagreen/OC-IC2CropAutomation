@@ -57,8 +57,9 @@ end
 
 local function canDropSeed(crop)
     if crop.isCrop and crop.name ~= 'emptyCrop' then
-        return crop.size >= 2
+        return crop.size >= 3
     end
+    return false
 end
 
 

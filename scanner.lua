@@ -26,7 +26,8 @@ local function scan()
                 ga = rawResult['CropGain'],
                 re = rawResult['CropResistance'],
                 tier = rawResult['CropTier'],
-                size = rawResult['CropSize']
+                size = rawResult['CropSize'],
+                adult = rawResult['CropMaxSize']
             }
         end
 
@@ -57,7 +58,7 @@ end
 
 local function canDropSeed(crop)
     if crop.isCrop and crop.name ~= 'emptyCrop' then
-        return crop.size >= 3
+        return crop.size == crop.adult
     end
     return false
 end

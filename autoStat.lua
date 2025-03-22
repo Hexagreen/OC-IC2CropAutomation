@@ -64,10 +64,12 @@ local function checkChild(slot, crop, firstRun)
                 if not scanner.canDropSeed(crop) then
                     return
                 end
-                action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(lowestStatSlot))
+                local transSuccess = action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(lowestStatSlot))
                 action.placeCropStick(2)
-                database.updateFarm(lowestStatSlot, crop)
-                updateLowest()
+                if transSuccess then
+                    database.updateFarm(lowestStatSlot, crop)
+                    updateLowest()
+                end
 
             else
                 action.deweed()

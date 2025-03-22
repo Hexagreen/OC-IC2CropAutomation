@@ -31,7 +31,7 @@ local config = {
     -- Minimum Gr + Ga - Re for the working farm during autoStat (21 + 31 - 0 = 52)
     autoStatThreshold = 52,
     -- Minimum Gr + Ga - Re for the storage farm during autoSpread (23 + 31 - 0 = 54)
-    autoSpreadThreshold = 50,
+    autoSpreadThreshold = 54,
 
     -- Maximum Growth for crops on the working farm
     workingMaxGrowth = 23,

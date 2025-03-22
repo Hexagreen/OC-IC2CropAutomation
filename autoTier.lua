@@ -81,20 +81,24 @@ local function checkChild(slot, crop, firstRun)
                 if not scanner.canDropSeed(crop) then
                     return
                 end
-                action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(lowestTierSlot))
+                local transSuccess = action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(lowestTierSlot))
                 action.placeCropStick(2)
-                database.updateFarm(lowestTierSlot, crop)
-                updateLowest()
+                if transSuccess then
+                    database.updateFarm(lowestTierSlot, crop)
+                    updateLowest()
+                end
 
             -- Not higher tier, stat up working farm
             elseif (config.statWhileTiering and crop.tier == lowestTier and stat > lowestStat) then
                 if not scanner.canDropSeed(crop) then
                     return
                 end
-                action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(lowestStatSlot))
+                local transSuccess = action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(lowestStatSlot))
                 action.placeCropStick(2)
-                database.updateFarm(lowestStatSlot, crop)
-                updateLowest()
+                if transSuccess then
+                    database.updateFarm(lowestStatSlot, crop)
+                    updateLowest()
+                end
 
             else
                 action.deweed()

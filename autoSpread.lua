@@ -41,9 +41,9 @@ local function checkChild(slot, crop)
                 if not scanner.canDropSeed(crop) then
                     return
                 end
-                action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(emptySlot))
+                local transSuccess = action.transplant(gps.workingSlotToPos(slot), gps.workingSlotToPos(emptySlot))
                 action.placeCropStick(2)
-                database.updateFarm(emptySlot, crop)
+                if transSuccess then database.updateFarm(emptySlot, crop) end
 
             -- No parent is empty, put in storage
             elseif stat >= config.autoSpreadThreshold then
